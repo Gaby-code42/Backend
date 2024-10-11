@@ -5,6 +5,7 @@ const app = express();
 
 const booksRoutes = require('./routes/books')
 const userRoutes = require('./routes/user')
+const path = require('path');
 
 mongoose.connect('mongodb+srv://raphaelbonacina:RaphaelBonacina@cluster0.vsjgw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
     { useNewUrlParser: true,
@@ -23,5 +24,6 @@ app.use((req, res, next) => {
 
 app.use('/api/books', booksRoutes)
 app.use('/api/auth', userRoutes)
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 module.exports = app;

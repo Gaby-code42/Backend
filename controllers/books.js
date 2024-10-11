@@ -27,13 +27,18 @@ exports.addRating = (req, res, next) => {
 }
 
 exports.createBook = (req, res, next) => {
-    delete req.body._id;
-    const book = new Book ({
-      ...req.body
+    const bookObject = JSON.parse(req.body.book)
+    delete bookObject._id
+    delete bookObject._userId
+    const book = new Book({
+      ...bookObject,
+      userID: req.auth.userID,
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     })
+
     book.save()
-    .then(() => res.status(201).json({ message: "Livre Ajouté"}))
-    .catch(error => res.status(400).json({ error }))
+    .then(() => { res.status(201).json({message: 'Livre ajouté'})})
+    .catch(error => { res.status(400).json({ error })})
   }
 
 exports.modifyBook = (req, res, next) => {
