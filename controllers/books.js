@@ -21,6 +21,11 @@ exports.getBestBooks = (req, res, next) => {
   
   }
 
+exports.addRating = (req, res, next) => {
+  const { userId, grade } = req.body
+  
+}
+
 exports.createBook = (req, res, next) => {
     delete req.body._id;
     const book = new Book ({
@@ -42,3 +47,4 @@ exports.deleteBook = (req, res, next) => {
       .then(() => res.status(200).json({ message: 'Livre supprimé !'}))
       .catch(error => res.status(400).json({ error }));
   }
+
