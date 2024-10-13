@@ -12,55 +12,61 @@ exports.getOneBook = (req, res, next) => {
     .catch(error => res.status(404).json({ error }))
 }
 
-exports.getBestBooks = (req, res, next) => {
+exports.getBestBook = (req, res, next) => {
 
-}
+  Book.find()
+  .sort({ averageRating: -1 })
+  .limit(3)
+  .then((bestBooks) => {
+      res.json(bestBooks);
+  })
+  .catch((error) => {
+      res.status(500).json({ message: error.message });
+  });
+};
 
-exports.addRating = async (req, res, next) => {
-  try {
-    const bookId = req.params.id;
-    const { userId, rating } = req.body;
+exports.addRating = (req, res, next) => {
+  const bookId = req.params.id;
+  const { userId, rating } = req.body;
 
-    console.log(bookId);
-    console.log(rating, userId);
+  console.log(bookId);
+  console.log(rating, userId);
 
-    if (typeof rating !== 'number' || isNaN(rating)) {
-      return res.status(400).json({ message: 'Le rating doit être un nombre' });
-    }
-
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ message: "La note doit être comprise entre 1 et 5" });
-    }
-
-   
-    const book = await Book.findById(bookId);
-    
-    if (!book) {
-      return res.status(404).json({ message: 'Livre non trouvé' });
-    }
-
-    
-    const existingRating = book.ratings.find(r => r.userId === userId);
-    if (existingRating) {
-      existingRating.grade = rating;
-    } else {
-      const newRating = { userId, grade: rating };
-      book.ratings.push(newRating);
-    }
-
-    
-    const totalRatings = book.ratings.length;
-    const totalGrade = book.ratings.reduce((sum, r) => sum + r.grade, 0);
-    book.averageRating = totalGrade / totalRatings;
-
-   
-    await book.save();
-
-    res.status(200).json({ message: 'Note ajoutée avec succès', book });
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout de la note:', error);
-    res.status(500).json({ message: 'Erreur serveur', error });
+  if (typeof rating !== 'number' || isNaN(rating)) {
+    return res.status(400).json({ message: 'Le rating doit être un nombre' });
   }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ message: "La note doit être comprise entre 1 et 5" });
+  }
+
+  Book.findById(bookId)
+    .then(book => {
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé' });
+      }
+
+      const existingRating = book.ratings.find(r => r.userId === userId);
+      if (existingRating) {
+        existingRating.grade = rating;
+      } else {
+        const newRating = { userId, grade: rating };
+        book.ratings.push(newRating);
+      }
+
+      const totalRatings = book.ratings.length;
+      const totalGrade = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+      book.averageRating = totalGrade / totalRatings;
+
+      return book.save();
+    })
+    .then(() => {
+      res.status(200).json({ message: 'Note ajoutée avec succès' });
+    })
+    .catch(error => {
+      console.error('Erreur lors de l\'ajout de la note:', error);
+      res.status(500).json({ message: 'Erreur serveur', error });
+    });
 };
   
 
@@ -124,4 +130,5 @@ exports.deleteBook = (req, res, next) => {
       })
       .catch(error => res.status(500).json({ error }))
   }
+
 
