@@ -1,1 +1,4 @@
 node_modules
+
+# Secrets : identifiants MongoDB et clé JWT
+.env

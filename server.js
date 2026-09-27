@@ -1,3 +1,8 @@
+// Les secrets (URI MongoDB, clé JWT) vivent dans .env, jamais dans le code.
+// process.loadEnvFile est natif depuis Node 20.12 : pas besoin de dotenv.
+const fs = require('fs');
+if (fs.existsSync('.env')) process.loadEnvFile();
+
 const http = require('http');
 const app = require('./app');
 
